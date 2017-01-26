@@ -1,0 +1,44 @@
+---
+title: "School Experiment"
+author: "Andrea Turchetto"
+date: "26 January 2017"
+output: html_document
+---
+
+## School Experiment
+
+This page prensents the results of a study conducted on in two cities (Fresno, Calif. and Yougstown, Ohio) in grades 1, 2, 3 and 4 in several different schools.
+
+The data of the experiment comes from  http://www.stat.columbia.edu/~gelman/bda.course/electric.txt. This analysis is an optional assignment from the DS101x online course: Statistical Thinking for Data Science and Analystics.
+
+The description of the experiment follows:
+
+The classrooms in each grade in each school were paired, with one classroom randomly assigned to the treatment condition (the kids in those classrooms were shown a special educational television show) and the other classroom getting the control condition (no TV show). In each classroom (treated or control), the students were given a "pre-test" at the beginning of the school year and a "post-test" at the end.
+
+Each row of the table shows the data for the two schools in a pair:  the average pre-test score for the students in the treated classroom, the average post-test score for those students, then the average pre- and post-test scores for the students in the control class.  You can ignore the last row of the table. 
+
+The data provided is imported into an R DataFrame df. 
+The first row in the txt file states that third and fourth columns present the score for the treated classes and fifth and sixth columns present the results for the control classes. This row is skipped because the title of the columns are in row 2 of the text file. 
+
+```{r }
+df = read.table("Experiment.txt", header = TRUE, skip = 1)
+
+## Dimensions of the data frame:
+dim(df)
+## Show first 10 rows of the table
+head(df, n=10)
+
+```
+
+We can see that:
+Column 0 - City: F (Fresno) / Y (Youngstown)
+Column 1 - Grade: 1 to 4
+Column 2 - Pretest: average score of initial test for Treated class 
+Column 3 - Posttest: average score of final test for Treated class
+Column 4 - Pretest.1: average score of initial test for Control class 
+Column 5 - Posttest.1: average score of final test for Control class
+Column 6 - Supplemment: class is replacement or supplement 
+
+Column 6 is not used for the scope of this analysis
+
+First we want to describe the statistics 
