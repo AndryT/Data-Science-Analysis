@@ -25,6 +25,10 @@ df = read.table("Experiment.txt", header = TRUE, skip = 1)
 
 ## Dimensions of the data frame:
 dim(df)
+
+## Removing the last row of data - Ignore it as per requirement
+df = df[1:(nrow(df)-1),]
+
 ## Show first 10 rows of the table
 head(df, n=10)
 
@@ -41,4 +45,96 @@ Column 6 - Supplemment: class is replacement or supplement
 
 Column 6 is not used for the scope of this analysis
 
-First we want to describe the statistics 
+Let's start the exploratory analysis evaluating the statistics of the initial and final tests.
+
+``` {r}
+library(dplyr)
+# Describe statistics of score tests independently from City or Grade
+scores.tot <- summarise(df, count = n(),
+                   mean.pre = mean(Pretest),
+                   mean.post = mean(Posttest),
+                   mean.pre.1 = mean(Pretest.1),
+                   mean.post.1 = mean(Posttest.1),
+                   median.pre = median(Pretest),
+                   median.post = median(Posttest),
+                   median.pre.1 = median(Pretest.1),
+                   median.post.1 = median(Posttest.1),
+                   std.pre = sd(Pretest),
+                   std.post = sd(Posttest),
+                   std.pre.1 = sd(Pretest.1),
+                   std.post.1 = sd(Posttest.1))
+scores.tot
+```
+
+Let's now describe the statistics for the score based on City and Grade
+
+```{r, library(dplyr)}
+# Get statistics grouped by City
+by_city <- group_by(df, City)
+scores.city <- summarise(by_city,
+                   count = n(),
+                   mean.pre = mean(Pretest),
+                   mean.post = mean(Posttest),
+                   mean.pre.1 = mean(Pretest.1),
+                   mean.post.1 = mean(Posttest.1),
+                   median.pre = median(Pretest),
+                   median.post = median(Posttest),
+                   median.pre.1 = median(Pretest.1),
+                   median.post.1 = median(Posttest.1),
+                   std.pre = sd(Pretest),
+                   std.post = sd(Posttest),
+                   std.pre.1 = sd(Pretest.1),
+                   std.post.1 = sd(Posttest.1))
+scores.city
+
+# Get statistics grouped by Grade:
+by_grade <- group_by(df, Grade)
+scores.grade <- summarise(by_grade,
+                          count = n(),
+                   mean.pre = mean(Pretest),
+                   mean.post = mean(Posttest),
+                   mean.pre.1 = mean(Pretest.1),
+                   mean.post.1 = mean(Posttest.1),
+                   median.pre = median(Pretest),
+                   median.post = median(Posttest),
+                   median.pre.1 = median(Pretest.1),
+                   median.post.1 = median(Posttest.1),
+                   std.pre = sd(Pretest),
+                   std.post = sd(Posttest),
+                   std.pre.1 = sd(Pretest.1),
+                   std.post.1 = sd(Posttest.1))
+
+subset(scores.grade, select = c("Grade","mean.pre","mean.post","mean.pre.1","mean.post.1"))
+```
+
+Let's now plot the scores obtained in the pretest from both the Treated and Control test classes
+
+```{r}
+library(ggplot2)
+# df$Grade <- factor(df$Grade, levels = c(1,2,3,4),
+#                    labels = c("Second","Third","Fourth"))
+c1 <- ggplot(filter(df, Grade == 1), aes(Pretest))
+c1 + geom_histogram(aes(y=..density..),binwidth = 2) + geom_density()+
+  labs(x="Score of Pretest", y = "Density", title = "Probability Distribution of score at Pretest")+theme(legend.position = "top")
+
+c2 <- ggplot(filter(df, Grade == 2), aes(Pretest))
+c2 + geom_histogram(aes(y = ..density..), binwidth = 5) + geom_density() 
+
+c3 <- ggplot(filter(df, Grade == 3), aes(Pretest))
+c3 + geom_histogram(aes(y = ..density..), binwidth = 5) + geom_density()
+
+```
+
+Let's now give a look to the increment in score between the initial test and the final test
+
+``` {r}
+df = mutate(df, diff_score_treated = Posttest.1-Pretest.1,
+           diff_score_control = Posttest-Pretest)
+
+# Get the probability distribution of the differences:
+d1 <- ggplot(df, aes(diff_score_control))
+d1 + geom_histogram(aes(y = ..density..), binwidth = 5) + geom_density()
+
+d2 <- ggplot(df, aes(diff_score_treated))
+d2 + geom_histogram(aes(y = ..density..), binwidth = 5) + geom_density()
+```
