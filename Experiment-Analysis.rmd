@@ -25,12 +25,17 @@ df = read.table("Experiment.txt", header = TRUE, skip = 1)
 
 ## Dimensions of the data frame:
 dim(df)
+nrow(df)
+ncol(df)
 
 ## Removing the last row of data - Ignore it as per requirement
 df = df[1:(nrow(df)-1),]
 
-## Show first 10 rows of the table
-head(df, n=10)
+## Showing structure of the object
+str(df)
+
+## Show first 5 rows of the table
+head(df, n=5)
 
 ```
 
@@ -111,16 +116,17 @@ Let's now plot the scores obtained in the pretest from both the Treated and Cont
 
 ```{r}
 library(ggplot2)
-# df$Grade <- factor(df$Grade, levels = c(1,2,3,4),
-#                    labels = c("Second","Third","Fourth"))
-c1 <- ggplot(filter(df, Grade == 1), aes(Pretest))
+## Factorise Grade variable --> categorical variable
+df$Grade <- factor(df$Grade, labels = c("First","Second","Third","Fourth"))
+
+c1 <- ggplot(filter(df, Grade == "First"), aes(Pretest))
 c1 + geom_histogram(aes(y=..density..),binwidth = 2) + geom_density()+
   labs(x="Score of Pretest", y = "Density", title = "Probability Distribution of score at Pretest")+theme(legend.position = "top")
 
-c2 <- ggplot(filter(df, Grade == 2), aes(Pretest))
+c2 <- ggplot(filter(df, Grade == "Second"), aes(Pretest))
 c2 + geom_histogram(aes(y = ..density..), binwidth = 5) + geom_density() 
 
-c3 <- ggplot(filter(df, Grade == 3), aes(Pretest))
+c3 <- ggplot(filter(df, Grade == "Third"), aes(Pretest))
 c3 + geom_histogram(aes(y = ..density..), binwidth = 5) + geom_density()
 
 ```
@@ -137,4 +143,43 @@ d1 + geom_histogram(aes(y = ..density..), binwidth = 5) + geom_density()
 
 d2 <- ggplot(df, aes(diff_score_treated))
 d2 + geom_histogram(aes(y = ..density..), binwidth = 5) + geom_density()
+```
+
+Let's identify whether the difference between the improvment in test score between treated and control classes is statistically significant. A box plot will do the job.
+
+```{r}
+d3 <- ggplot(df, aes( x = Grade, y = diff_score_control))
+d3 + geom_boxplot()
+
+## Merge quantitative variables variables diff_score_control and diff_score_treated
+df = mutate(df, treated = "T", control = "C")
+
+df1 = select(df, Grade, diff_score_control, control)
+colnames(df1)[2:3] <- c("Diff.Score","ClassType")
+
+df2 = select(df, Grade, diff_score_treated, treated)
+colnames(df2)[2:3] <- c("Diff.Score","ClassType")
+
+df3 = bind_rows(df1,df2)
+rm(df1)
+rm(df2)
+
+df3$ClassType = factor(df3$ClassType, levels = c("C","T"), labels = c("Control","Treated"))
+
+str(df3)
+
+d4 <- ggplot(df3, aes(x = ClassType, y = Diff.Score))
+d4 + geom_boxplot()
+```
+
+From the boxplot above it can be concluded that there is not a statistically significant difference between the improvement in score between the treated class and the control class. 
+
+Let's now check whether the treatment affects the students uniformly over the different ages (grades)
+
+``` {r}
+for (grade in 1:length(unique(df3$Grade)))
+  {
+    d5 <- ggplot(filter(df3, Grade == df3$Grade[grade]), aes(x = ClassType, y = Diff.Score))
+    d5 + geom_boxplot()
+}
 ```
