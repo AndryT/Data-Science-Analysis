@@ -119,7 +119,7 @@ library(ggplot2)
 ## Factorise Grade variable --> categorical variable
 df$Grade <- factor(df$Grade, labels = c("First","Second","Third","Fourth"))
 
-c1 <- ggplot(filter(df, Grade == "First"), aes(Pretest))
+c1 <- ggplot(df, aes(x = Pretest, color = Grade))
 c1 + geom_histogram(aes(y=..density..),binwidth = 2) + geom_density()+
   labs(x="Score of Pretest", y = "Density", title = "Probability Distribution of score at Pretest")+theme(legend.position = "top")
 
